@@ -44,6 +44,16 @@ jobs:
           test -f work/RankinRealms_Android_V3/settings.gradle.kts
           test -f work/RankinRealms_Android_V3/app/build.gradle.kts
 
+      - name: Patch AGP 9 built-in Kotlin configuration
+        shell: bash
+        run: |
+          sed -i '/org.jetbrains.kotlin.android/d' work/RankinRealms_Android_V3/build.gradle.kts
+          sed -i '/org.jetbrains.kotlin.android/d' work/RankinRealms_Android_V3/app/build.gradle.kts
+          echo "Root plugins after patch:"
+          cat work/RankinRealms_Android_V3/build.gradle.kts
+          echo "App plugins after patch:"
+          sed -n '1,20p' work/RankinRealms_Android_V3/app/build.gradle.kts
+
       - name: Build Play debug APK
         working-directory: work/RankinRealms_Android_V3
         run: gradle :app:assemblePlayDebug --stacktrace --no-daemon
