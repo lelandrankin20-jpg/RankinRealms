@@ -1,0 +1,5 @@
+Rankin Realms V4
+compileSdk=36
+targetSdk=36
+GitHub Actions workflow: .github/workflows/build-debug-apk.yml
+Build task: :app:assemblePlayDebug

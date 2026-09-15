@@ -1,0 +1,4 @@
+Copyright (c) 2026 Leland Rankin / Rankin Environments.
+All rights reserved.
+
+The application source in this delivery is provided for the owner's development and publication of Rankin Realms. Artwork remains the property of its respective rights holder and is not licensed for redistribution outside the intended application without permission.
