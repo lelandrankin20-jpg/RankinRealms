@@ -58,6 +58,7 @@ jobs:
           s = s.replace('    kotlinOptions {\n        jvmTarget = "17"\n    }\n\n', '')
           p.write_text(s)
           PY
+          cp CropCanvas.kt work/RankinRealms_Android_V3/app/src/main/java/com/rankinenvironments/realms/ui/CropCanvas.kt
           echo "Patched app build file:"
           cat work/RankinRealms_Android_V3/app/build.gradle.kts
 
