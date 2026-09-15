@@ -44,19 +44,46 @@ jobs:
           test -f work/RankinRealms_Android_V3/settings.gradle.kts
           test -f work/RankinRealms_Android_V3/app/build.gradle.kts
 
-      - name: Patch project for stable AGP 9 toolchain
+      - name: Patch project for stable AGP 9 toolchain and crop controls
         shell: bash
         run: |
           sed -i '/org.jetbrains.kotlin.android/d' work/RankinRealms_Android_V3/build.gradle.kts
           sed -i '/org.jetbrains.kotlin.android/d' work/RankinRealms_Android_V3/app/build.gradle.kts
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('work/RankinRealms_Android_V3/app/build.gradle.kts')
-          s = p.read_text()
+
+          build = Path('work/RankinRealms_Android_V3/app/build.gradle.kts')
+          s = build.read_text()
           s = s.replace('compileSdk = 37', 'compileSdk = 36')
           s = s.replace('androidx.compose:compose-bom:2026.08.00', 'androidx.compose:compose-bom:2026.04.01')
           s = s.replace('    kotlinOptions {\n        jvmTarget = "17"\n    }\n\n', '')
-          p.write_text(s)
+          build.write_text(s)
+
+          app = Path('work/RankinRealms_Android_V3/app/src/main/java/com/rankinenvironments/realms/ui/RankinRealmsApp.kt')
+          text = app.read_text()
+          old = '''            Text("Pinch to zoom • drag to choose exactly what is visible", style = MaterialTheme.typography.labelMedium)
+            Spacer(Modifier.height(14.dp))
+'''
+          new = '''            Text("Drag to reframe • pinch or use the slider to zoom", style = MaterialTheme.typography.labelMedium)
+            Row(
+                Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text("Zoom", style = MaterialTheme.typography.labelMedium)
+                Slider(
+                    value = crop.zoom,
+                    onValueChange = { crop = crop.copy(zoom = it) },
+                    valueRange = 1f..8f,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(String.format(Locale.US, "%.1f×", crop.zoom), style = MaterialTheme.typography.labelMedium)
+            }
+            Spacer(Modifier.height(14.dp))
+'''
+          if old not in text:
+              raise SystemExit('Expected FrameScreen crop-help block was not found')
+          app.write_text(text.replace(old, new, 1))
           PY
           cp CropCanvas.kt work/RankinRealms_Android_V3/app/src/main/java/com/rankinenvironments/realms/ui/CropCanvas.kt
           echo "Patched app build file:"
