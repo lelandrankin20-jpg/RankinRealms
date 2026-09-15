@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.FilterQuality
@@ -22,20 +24,36 @@ fun CropCanvas(
     modifier: Modifier = Modifier
 ) {
     val image = bitmap.asImageBitmap()
+    val latestState by rememberUpdatedState(state)
+    val latestOnStateChange by rememberUpdatedState(onStateChange)
+
     Canvas(
-        modifier = modifier.pointerInput(bitmap, state) {
+        modifier = modifier.pointerInput(bitmap) {
             detectTransformGestures { _, pan, gestureZoom, _ ->
-                val newZoom = (state.zoom * gestureZoom).coerceIn(1f, 8f)
+                val current = latestState
                 val currentRect = CropMath.visibleRect(
                     bitmap.width,
                     bitmap.height,
                     size.width.coerceAtLeast(1),
                     size.height.coerceAtLeast(1),
-                    state
+                    current
                 )
-                val nx = state.centerX - (pan.x / size.width.coerceAtLeast(1)) * (currentRect.width().toFloat() / bitmap.width)
-                val ny = state.centerY - (pan.y / size.height.coerceAtLeast(1)) * (currentRect.height().toFloat() / bitmap.height)
-                onStateChange(CropState(nx.coerceIn(0f, 1f), ny.coerceIn(0f, 1f), newZoom))
+
+                val newZoom = (current.zoom * gestureZoom).coerceIn(1f, 8f)
+                val nx = current.centerX -
+                    (pan.x / size.width.coerceAtLeast(1)) *
+                    (currentRect.width().toFloat() / bitmap.width)
+                val ny = current.centerY -
+                    (pan.y / size.height.coerceAtLeast(1)) *
+                    (currentRect.height().toFloat() / bitmap.height)
+
+                latestOnStateChange(
+                    CropState(
+                        centerX = nx.coerceIn(0f, 1f),
+                        centerY = ny.coerceIn(0f, 1f),
+                        zoom = newZoom
+                    )
+                )
             }
         }
     ) {
