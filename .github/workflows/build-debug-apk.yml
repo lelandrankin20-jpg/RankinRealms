@@ -1,0 +1,54 @@
+name: Build Rankin Realms APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Set up Gradle 9.6
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Extract build-ready Android project
+        run: |
+          rm -rf work
+          mkdir -p work
+          unzip -q RankinRealms_Android_Source_V4_BUILD_READY.zip -d work
+          test -f work/RankinRealms_Android_V3/settings.gradle.kts
+          test -f work/RankinRealms_Android_V3/app/build.gradle.kts
+
+      - name: Build Play debug APK
+        working-directory: work/RankinRealms_Android_V3
+        run: gradle :app:assemblePlayDebug --stacktrace --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RankinRealms-Play-Debug
+          path: work/RankinRealms_Android_V3/app/build/outputs/apk/play/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
