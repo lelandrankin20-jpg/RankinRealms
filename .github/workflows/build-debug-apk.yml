@@ -61,26 +61,25 @@ jobs:
 
           app = Path('work/RankinRealms_Android_V3/app/src/main/java/com/rankinenvironments/realms/ui/RankinRealmsApp.kt')
           text = app.read_text()
-          old = '''            Text("Pinch to zoom • drag to choose exactly what is visible", style = MaterialTheme.typography.labelMedium)
-            Spacer(Modifier.height(14.dp))
-'''
-          new = '''            Text("Drag to reframe • pinch or use the slider to zoom", style = MaterialTheme.typography.labelMedium)
-            Row(
-                Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text("Zoom", style = MaterialTheme.typography.labelMedium)
-                Slider(
-                    value = crop.zoom,
-                    onValueChange = { crop = crop.copy(zoom = it) },
-                    valueRange = 1f..8f,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(String.format(Locale.US, "%.1f×", crop.zoom), style = MaterialTheme.typography.labelMedium)
-            }
-            Spacer(Modifier.height(14.dp))
-'''
+          old = '            Text("Pinch to zoom • drag to choose exactly what is visible", style = MaterialTheme.typography.labelMedium)\n            Spacer(Modifier.height(14.dp))\n'
+          new = (
+              '            Text("Drag to reframe • pinch or use the slider to zoom", style = MaterialTheme.typography.labelMedium)\n'
+              '            Row(\n'
+              '                Modifier.padding(horizontal = 20.dp).fillMaxWidth(),\n'
+              '                verticalAlignment = Alignment.CenterVertically,\n'
+              '                horizontalArrangement = Arrangement.spacedBy(10.dp)\n'
+              '            ) {\n'
+              '                Text("Zoom", style = MaterialTheme.typography.labelMedium)\n'
+              '                Slider(\n'
+              '                    value = crop.zoom,\n'
+              '                    onValueChange = { crop = crop.copy(zoom = it) },\n'
+              '                    valueRange = 1f..8f,\n'
+              '                    modifier = Modifier.weight(1f)\n'
+              '                )\n'
+              '                Text(String.format(Locale.US, "%.1f×", crop.zoom), style = MaterialTheme.typography.labelMedium)\n'
+              '            }\n'
+              '            Spacer(Modifier.height(14.dp))\n'
+          )
           if old not in text:
               raise SystemExit('Expected FrameScreen crop-help block was not found')
           app.write_text(text.replace(old, new, 1))
